@@ -1,4 +1,96 @@
 一.Android异步消息处理线程：
 	概念：异步消息处理线程启动后，会进入一个无线循环过程，每循环一次，会从内部的消息循环队列中取出一个消息，然后回调相应的消息处理函数。
 		  如果消息队列为空，则线程进入阻塞状态
+	实现：
+			1.调用Looper.prepare()方法，会创建一个Looper对象，并且在Looper的构造方法中会创建MessageQueue队列，将当前线程与Looper进行绑定
+				private static void prepare(boolean quitAllowed) {
+					if (sThreadLocal.get() != null) {
+						throw new RuntimeException("Only one Looper may be created per thread");
+						}
+					sThreadLocal.set(new Looper(quitAllowed));
+				}
+			2.调用Looper.loop()方法 无限循环，从MessageQueue中取出消息，每取出一条消息，都会调用msg.target.dispatchMessage()方法，
+				在dispatchMessage()中，要么调用与消息绑定的Runnable对象的run()方法，要么去执行handleMessage()方法,这样就能进行线程
+				之间的通信
+				
+				
+				//消息循环
+				 public static void loop() {
+						final Looper me = myLooper();
+						if (me == null) {
+							throw new RuntimeException("No Looper; Looper.prepare() wasn't called on this thread.");
+						}
+						final MessageQueue queue = me.mQueue;
+
+						// Make sure the identity of this thread is that of the local process,
+						// and keep track of what that identity token actually is.
+						Binder.clearCallingIdentity();
+						final long ident = Binder.clearCallingIdentity();
+
+						for (;;) {
+						Message msg = queue.next(); // might block
+						if (msg == null) {
+							// No message indicates that the message queue is quitting.
+							return;
+						}
+
+						// This must be in a local variable, in case a UI event sets the logger
+						final Printer logging = me.mLogging;
+						if (logging != null) {
+							logging.println(">>>>> Dispatching to " + msg.target + " " +
+									msg.callback + ": " + msg.what);
+						}
+
+						final long traceTag = me.mTraceTag;
+						if (traceTag != 0 && Trace.isTagEnabled(traceTag)) {
+							Trace.traceBegin(traceTag, msg.target.getTraceName(msg));
+						}
+						try {
+							msg.target.dispatchMessage(msg);
+						} finally {
+							if (traceTag != 0) {
+								Trace.traceEnd(traceTag);
+							}
+						}
+
+						if (logging != null) {
+							logging.println("<<<<< Finished to " + msg.target + " " + msg.callback);
+						}
+
+						// Make sure that during the course of dispatching the
+						// identity of the thread wasn't corrupted.
+						final long newIdent = Binder.clearCallingIdentity();
+						if (ident != newIdent) {
+							Log.wtf(TAG, "Thread identity changed from 0x"
+									+ Long.toHexString(ident) + " to 0x"
+									+ Long.toHexString(newIdent) + " while dispatching to "
+									+ msg.target.getClass().getName() + " "
+									+ msg.callback + " what=" + msg.what);
+						}
+
+						msg.recycleUnchecked();
+					}
+				}
+				
+				//分发消息
+				public void dispatchMessage(Message msg) {
+				if (msg.callback != null) {
+					handleCallback(msg);
+				} else {
+					if (mCallback != null) {
+						if (mCallback.handleMessage(msg)) {
+							return;
+						}
+					}
+					handleMessage(msg);
+				}
+    }
 	
+二.Matrix类  矩阵
+											MSCALE_X  MSKEW_X  | MTRANS_X
+		Android中Matrix是一个3*3的矩形 即	MSKEW_Y   MSCALE_Y | MTRANS_Y
+											----------------------------
+											MPERSP_0  MPERSP_1 | MPERSP_2
+		其中MSCALE表示缩放，MSKEW表示错切(倾斜)，MTRANS表示平移，MPERSP表示透视
+		
+		矩阵的第一部分可以控制比例旋转，第二部分控制平移，第四部分表示等比变换
