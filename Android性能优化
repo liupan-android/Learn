@@ -1,5 +1,8 @@
-1.使用“设置 --> 开发者选项 --> 调试 GPU 过度绘制”，根据屏幕显示的不同颜色来区分是存在过度绘制，从而排查该界面的 xml 文件，去除不必要的 background，
-消除过度绘制
-2.通过 Layout Inspector 查看布局层级，排查是否存在多层无用的嵌套（由于 Hierarchy Viewer 已经被废弃，如果使用 3.1 及更新版本的 Android Studio，使
-用 Layout Inspector 查看布局会更加方便
-3.在 xml 中使用 ViewStub & merge 标签，优化布局层级
+Android 性能优化系列 - 01 手把手教你使用 systrace
+  1.使用“设置 --> 开发者选项 --> 调试 GPU 过度绘制”，根据屏幕显示的不同颜色来区分是存在过度绘制，从而排查该界面的 xml 文件，去除不必要的 background，
+    消除过度绘制
+  2.通过 Layout Inspector 查看布局层级，排查是否存在多层无用的嵌套（由于 Hierarchy Viewer 已经被废弃，如果使用 3.1 及更新版本的 Android Studio，使
+    用 Layout Inspector 查看布局会更加方便
+  3.在 xml 中使用 ViewStub & merge 标签，优化布局层级
+  4.使用systrace,具体使用方法参见:https://www.jianshu.com/p/19b3245207e8
+
