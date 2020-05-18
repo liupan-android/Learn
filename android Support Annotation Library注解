@@ -1,0 +1,35 @@
+一.NullNess类型
+1.@Nullable  作用于函数参数或者返回值，标记参数或者返回值可以为null
+2.@NonNull   作用于函数参数或者返回值，标记参数或者返回值不能为null
+
+
+二.资源类型
+
+
+三.线程注解
+ 1.@UiThread  标记运行在UI线程,对于一个应用来说，可能存在多个Ui线程，一个Ui线程表示一个窗口
+ 2.@MainThread 标记运行在主线程,通常可与Ui线程互换，@MainThread通常注解生命周期函数，@UiThread通常注解视图相关函数
+ 3.@WorkerThread 标记运行在后台的线程
+ 4.@BinderThread 标记运行在Binder线程
+ 
+ 
+ 四.RGB颜色值注解
+ @ColorInt
+ 
+ 
+ 五.值范围注解
+ 1.@Size
+ 2.@IntRange(from=1,to=2)
+ 2.@FloatRange(from=0.0,to=1.0)
+ 
+ 
+ 六.权限注解
+ @RequiresPermission
+ 
+ 
+ 七.重写函数注解
+ @CallSuper
+ 
+ 
+ 八. @Keep
+ 标记在Proguard混淆过程中不需要混淆的类或者方法
